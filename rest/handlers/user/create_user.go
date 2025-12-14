@@ -8,11 +8,11 @@ import (
 )
 
 type ReqCreateUser struct {
-	FirstName   string `json:"first_name"`
-	LastName    string `json:"last_name"`
-	Email       string `json:"email"`
-	Password    string `json:"password"`
-	IsShopOwner bool   `json:"is_shop_owner"`
+	Email        string  `json:"email"`
+	PasswordHash *string `json:"password_hash,omitempty"`
+	GoogleID     *string `json:"google_id,omitempty"`
+	Name         string  `json:"name"`
+	AvatarURL    *string `json:"avatar_url,omitempty"`
 }
 
 func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
@@ -25,11 +25,11 @@ func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user, err := h.svc.Create(domain.User{
-		FirstName:   req.FirstName,
-		LastName:    req.LastName,
-		Email:       req.Email,
-		Password:    req.Password,
-		IsShopOwner: req.IsShopOwner,
+		Email:        req.Email,
+		PasswordHash: req.PasswordHash,
+		GoogleID:     req.GoogleID,
+		Name:         req.Name,
+		AvatarURL:    req.AvatarURL,
 	})
 
 	if err != nil {

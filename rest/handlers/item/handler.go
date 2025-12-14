@@ -1,4 +1,4 @@
-package product
+package item
 
 import (
 	middleware "ecommerce/rest/middlewares"

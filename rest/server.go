@@ -2,9 +2,9 @@ package rest
 
 import (
 	"ecommerce/config"
-	"ecommerce/rest/handlers/product"
+	"ecommerce/rest/handlers/item"
 	"ecommerce/rest/handlers/user"
-	"ecommerce/rest/middlewares"
+	middleware "ecommerce/rest/middlewares"
 	"fmt"
 	"net/http"
 	"os"
@@ -12,15 +12,15 @@ import (
 )
 
 type Server struct {
-	cnf            *config.Config
-	productHandler *product.Handler
-	userHandler    *user.Handler
+	cnf         *config.Config
+	itemHandler *item.Handler
+	userHandler *user.Handler
 }
 
-func NewServer(cnf *config.Config, productHandler *product.Handler, userHandler *user.Handler) *Server {
+func NewServer(cnf *config.Config, itemHandler *item.Handler, userHandler *user.Handler) *Server {
 	return &Server{
 		cnf,
-		productHandler,
+		itemHandler,
 		userHandler,
 	}
 }
@@ -34,7 +34,7 @@ func (server *Server) Start() {
 	wrappedMux := manager.WrapMux(mux)
 
 	// initRoutes(mux, manager)
-	server.productHandler.RegisterRoutes(mux, manager)
+	server.itemHandler.RegisterRoutes(mux, manager)
 	server.userHandler.RegisterRoutes(mux, manager)
 
 	addr := ":" + strconv.Itoa(server.cnf.HttpPort)

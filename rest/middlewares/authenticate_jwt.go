@@ -1,12 +1,22 @@
 package middleware
 
 import (
+	"context"
 	"crypto/hmac"
 	"crypto/sha256"
 	"ecommerce/utils"
+	"encoding/json"
 	"net/http"
 	"strings"
 )
+
+// Define custom type for context keys to avoid collisions
+// This prevents different packages from accidentally using the same string key
+type contextKey string
+
+// Define the specific key we'll use for user_id
+// This is exported (starts with capital) so handlers can use it
+const UserIDKey contextKey = "user_id"
 
 func (m *Middlewares) AuthenticateJWT(next http.Handler) http.Handler {
 
@@ -52,6 +62,26 @@ func (m *Middlewares) AuthenticateJWT(next http.Handler) http.Handler {
 			return
 		}
 
-		next.ServeHTTP(w, r)
+		payloadBytes, err := utils.Base64UrlDecode(jwtPayload)
+
+		if err != nil {
+			http.Error(w, "UnAuthorized", http.StatusUnauthorized)
+			return
+		}
+
+		var payload utils.Payload
+
+		err = json.Unmarshal(payloadBytes, &payload)
+		if err != nil {
+			http.Error(w, "Unauthorized!", http.StatusUnauthorized)
+			return
+		}
+
+		// Add user_id to request context
+		// Create new context with user_id value using our custom key type
+		ctx := context.WithValue(r.Context(), UserIDKey, payload.Sub)
+
+		// Pass the new context to next handler
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

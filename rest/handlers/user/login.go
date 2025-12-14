@@ -28,10 +28,9 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	accessToken, err := utils.CreateJwt(h.cnf.JwtSecretKey, utils.Payload{
-		Sub:       usr.ID,
-		FirstName: usr.FirstName,
-		LastName:  usr.LastName,
-		Email:     usr.Email,
+		Sub:   usr.ID,
+		Name:  usr.Name,
+		Email: usr.Email,
 	})
 
 	if err != nil {

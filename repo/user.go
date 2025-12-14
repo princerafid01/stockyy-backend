@@ -26,21 +26,21 @@ func NewUserRepo(db *sqlx.DB) UserRepo {
 func (r *userRepo) Create(user domain.User) (*domain.User, error) {
 	query := `
 		INSERT INTO users (
-		    first_name,
-		    last_name,
 		    email,
-		    password,
-		    is_shop_owner
+		    password_hash,
+		    google_id,
+		    name,
+		    avatar_url
 		) VALUES (
-		    :first_name,
-		    :last_name,
 		    :email,
-		    :password,
-		    :is_shop_owner
+		    :password_hash,
+		    :google_id,
+		    :name,
+		    :avatar_url
 		)
 		RETURNING id
 	`
-	var userID int
+	var userID int64
 
 	rows, err := r.db.NamedQuery(query, user)
 	if err != nil {
@@ -62,9 +62,9 @@ func (r *userRepo) Find(email, pass string) (*domain.User, error) {
 	var user domain.User
 
 	query := `
-		SELECT id, first_name, last_name, email, password, is_shop_owner
+		SELECT id, email, password_hash, google_id, name, avatar_url, created_at, updated_at
 		FROM users
-		WHERE email = $1 AND password = $2
+		WHERE email = $1 AND password_hash = $2
 		LIMIT 1;
 	`
 
