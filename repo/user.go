@@ -10,7 +10,7 @@ import (
 )
 
 type UserRepo interface {
-	user.UserRepo
+	user.UserRepo // embedding
 }
 
 type userRepo struct {
@@ -77,4 +77,22 @@ func (r *userRepo) Find(email string, passwordHash *string) (*domain.User, error
 		return nil, err
 	}
 	return &user, err
+}
+
+func (r *userRepo) FindByEmail(email string) (*domain.User, error) {
+	var user domain.User
+
+	query := `
+	SELECT id, email, password_hash, google_id, name, avatar_url from users where email = $1
+	`
+
+	err := r.db.Get(&user, query, email)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &user, nil
 }

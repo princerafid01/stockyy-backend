@@ -3,16 +3,14 @@ package user
 import (
 	"ecommerce/utils"
 	"encoding/json"
+	"fmt"
 	"net/http"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
-type ReqLogin struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
-}
-
 func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
-	var reqLogin ReqLogin
+	var reqLogin UserLoginRequest
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&reqLogin)
 	if err != nil {
@@ -20,9 +18,23 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	usr, _ := h.svc.Find(reqLogin.Email, &reqLogin.Password)
+	// find user by email
+	usr, err := h.svc.FindByEmail(reqLogin.Email)
+	if err != nil {
+		utils.SendError(w, http.StatusInternalServerError, "Internal Server Error")
+		return
+	}
 
-	if usr == nil {
+	// If user not found or no password hash → invalid credentials
+	if usr == nil || usr.PasswordHash == nil {
+		utils.SendError(w, http.StatusForbidden, "Invalid Credentials")
+		return
+	}
+
+	// compare password hash with password
+	err = bcrypt.CompareHashAndPassword([]byte(*usr.PasswordHash), []byte(reqLogin.Password))
+	if err != nil {
+		fmt.Println("error comparing password hash with password ", err)
 		utils.SendError(w, http.StatusForbidden, "Invalid Credentials")
 		return
 	}
@@ -38,5 +50,9 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.SendData(w, http.StatusCreated, accessToken)
+	resp := UserLoginResponse{
+		AccessToken: accessToken,
+	}
+
+	utils.SendData(w, http.StatusCreated, resp)
 }

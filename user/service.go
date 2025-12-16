@@ -39,3 +39,17 @@ func (svc *service) Find(email string, passwordHash *string) (*domain.User, erro
 
 	return usr, nil
 }
+
+func (svc *service) FindByEmail(email string) (*domain.User, error) {
+	usr, err := svc.usrRepo.FindByEmail(email)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if usr == nil {
+		return nil, nil
+	}
+
+	return usr, nil
+}

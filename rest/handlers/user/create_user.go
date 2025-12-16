@@ -5,18 +5,12 @@ import (
 	"ecommerce/utils"
 	"encoding/json"
 	"net/http"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
-type ReqCreateUser struct {
-	Email        string  `json:"email"`
-	PasswordHash *string `json:"password_hash,omitempty"`
-	GoogleID     *string `json:"google_id,omitempty"`
-	Name         string  `json:"name"`
-	AvatarURL    *string `json:"avatar_url,omitempty"`
-}
-
 func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
-	var req ReqCreateUser
+	var req UserCreateRequest
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&req)
 	if err != nil {
@@ -24,16 +18,33 @@ func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	usr, err := h.svc.Find(req.Email, req.PasswordHash)
+	usr, err := h.svc.FindByEmail(req.Email)
+
+	if err != nil {
+		utils.SendError(w, http.StatusInternalServerError, "Internal Server Error")
+		return
+	}
 
 	if usr != nil {
 		utils.SendError(w, http.StatusBadRequest, "User already exists")
 		return
 	}
 
+	var hashedPassword *string
+
+	if req.Password != nil && *req.Password != "" {
+		hased, err := bcrypt.GenerateFromPassword([]byte(*req.Password), bcrypt.DefaultCost)
+		if err != nil {
+			utils.SendError(w, http.StatusInternalServerError, "Failed to process password")
+			return
+		}
+		hashStr := string(hased)
+		hashedPassword = &hashStr
+	}
+
 	user, err := h.svc.Create(domain.User{
 		Email:        req.Email,
-		PasswordHash: req.PasswordHash,
+		PasswordHash: hashedPassword,
 		GoogleID:     req.GoogleID,
 		Name:         req.Name,
 		AvatarURL:    req.AvatarURL,
@@ -44,5 +55,13 @@ func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.SendData(w, http.StatusCreated, user)
+	resp := UserCreateResponse{
+		ID:        user.ID,
+		Email:     user.Email,
+		GoogleID:  user.GoogleID,
+		Name:      user.Name,
+		AvatarURL: user.AvatarURL,
+	}
+
+	utils.SendData(w, http.StatusCreated, resp)
 }
