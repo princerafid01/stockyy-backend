@@ -11,7 +11,7 @@ type Service interface {
 
 type UserRepo interface {
 	Create(user domain.User) (*domain.User, error)
-	Find(email string, pass string) (*domain.User, error)
+	Find(email string, passwordHash *string) (*domain.User, error)
 	// List() ([]*User, error)
 	// Delete(userID int) error
 	// Update(user User) (*User, error)

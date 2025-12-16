@@ -24,6 +24,13 @@ func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	usr, err := h.svc.Find(req.Email, req.PasswordHash)
+
+	if usr != nil {
+		utils.SendError(w, http.StatusBadRequest, "User already exists")
+		return
+	}
+
 	user, err := h.svc.Create(domain.User{
 		Email:        req.Email,
 		PasswordHash: req.PasswordHash,

@@ -32,5 +32,5 @@ CREATE INDEX idx_items_user_quantity     ON items(user_id, quantity);
 CREATE INDEX idx_items_user_category     ON items(user_id, category_id);
 CREATE INDEX idx_items_user_location     ON items(user_id, location_id);
 CREATE INDEX idx_items_user_barcode      ON items(user_id, barcode);
-CREATE INDEX idx_items_user_search       ON items(user_id, name gin_trgm_ops) USING GIN;  -- for fast fuzzy search
+CREATE INDEX idx_items_user_search       ON items USING GIN (name gin_trgm_ops);  -- for fast fuzzy search
 

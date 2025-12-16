@@ -58,7 +58,7 @@ func (r *userRepo) Create(user domain.User) (*domain.User, error) {
 
 }
 
-func (r *userRepo) Find(email, pass string) (*domain.User, error) {
+func (r *userRepo) Find(email string, passwordHash *string) (*domain.User, error) {
 	var user domain.User
 
 	query := `
@@ -68,7 +68,7 @@ func (r *userRepo) Find(email, pass string) (*domain.User, error) {
 		LIMIT 1;
 	`
 
-	err := r.db.Get(&user, query, email, pass)
+	err := r.db.Get(&user, query, email, passwordHash)
 
 	if err != nil {
 		if err == sql.ErrNoRows {

@@ -26,8 +26,8 @@ func (svc *service) Create(user domain.User) (*domain.User, error) {
 	return usr, nil
 
 }
-func (svc *service) Find(email string, password string) (*domain.User, error) {
-	usr, err := svc.usrRepo.Find(email, password)
+func (svc *service) Find(email string, passwordHash *string) (*domain.User, error) {
+	usr, err := svc.usrRepo.Find(email, passwordHash)
 
 	if err != nil {
 		return nil, err
