@@ -14,7 +14,7 @@ func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&req)
 	if err != nil {
-		utils.SendError(w, http.StatusBadRequest, "Invalid request data")
+		utils.SendError(w, http.StatusBadRequest, "Invalid request data: "+err.Error())
 		return
 	}
 

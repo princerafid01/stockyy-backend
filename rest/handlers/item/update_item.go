@@ -75,7 +75,7 @@ func (h *Handler) UpdateItem(w http.ResponseWriter, r *http.Request) {
 	})
 
 	if err != nil {
-		utils.SendError(w, http.StatusInternalServerError, "Internal Server Error")
+		utils.SendError(w, http.StatusInternalServerError, "Internal Server Error"+err.Error())
 		return
 	}
 

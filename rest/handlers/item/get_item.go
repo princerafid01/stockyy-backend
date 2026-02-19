@@ -27,7 +27,7 @@ func (h *Handler) GetItem(w http.ResponseWriter, r *http.Request) {
 	item, err := h.svc.Get(id, userID)
 
 	if err != nil {
-		utils.SendError(w, http.StatusInternalServerError, "Internal Server Error")
+		utils.SendError(w, http.StatusInternalServerError, "Internal Server Error ")
 		return
 	}
 

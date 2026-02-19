@@ -1,0 +1,2 @@
+-- +migrate Down
+-- No rollback needed as this is a data fix migration

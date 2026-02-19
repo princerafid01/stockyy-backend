@@ -35,7 +35,7 @@ func (h *Handler) GetItems(w http.ResponseWriter, r *http.Request) {
 	itemList, err := h.svc.List(userID, page, limit)
 	if err != nil {
 		fmt.Println(err)
-		utils.SendError(w, http.StatusInternalServerError, "Internal Server Error")
+		utils.SendError(w, http.StatusInternalServerError, "Internal Server Error "+err.Error())
 		return
 	}
 
